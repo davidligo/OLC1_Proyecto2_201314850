@@ -1,0 +1,14 @@
+public class nombre {
+int a, b=10+(9)*7, c = d, y = asdf_aq82;
+    public int funcion1(int a, String b){
+        int a;
+        char awe = 'a';
+        String letra = "*********************************************************************";
+        int b = n == 1 || n == 0;
+        boolean q = true && false  || true || !!!! false && (true);
+    }
+    public void funcion1(int a, String b){}
+    public helo(String h);
+    public boolean ASDFLJSADLFKJQWELJWQLKQWJLKRJQEWLKJQLKJEWLKEWRJ(A);
+}
+
