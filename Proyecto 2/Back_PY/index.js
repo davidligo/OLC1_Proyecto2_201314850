@@ -19,55 +19,55 @@ function crearErrorL(descripcion, fila, columna){
 
 function esPalabraReservada(valor){
   if (valor == "public"){
-      return 1;
+      return valor;
   }else if (valor == "class"){
-      return 2;
+      return valor;
   }else if (valor == "interface"){
-      return 3;
+      return valor;
   }else if (valor == "void"){
-      return 4;
+      return valor;
   }else if (valor == "for"){
-      return 5;
+      return valor;
   }else if (valor == "while"){
-      return 6;
+      return valor;
   }else if (valor == "System"){
-      return 7;
+      return valor;
   }else if (valor == "out"){
-      return 8;
+      return valor;
   }else if (valor == "println"){
-      return 9;
+      return valor;
   }else if (valor == "do"){
-      return 10;
+      return valor;
   }else if (valor == "true"){
-      return 11;
+      return valor;
   }else if (valor == "false"){
-      return 12;
+      return valor;
   }else if (valor == "if"){
-      return 13;
+      return valor;
   }else if (valor == "else"){
-      return 14;
+      return valor;
   }else if (valor == "break"){
-      return 15;
+      return valor;
   }else if (valor == "continue"){
-      return 16;
+      return valor;
   }else if (valor == "return"){
-      return 17;
+      return valor;
   }else if (valor == "int"){
-      return 18;
+      return valor;
   }else if (valor == "boolean"){
-      return 19;
+      return valor;
   }else if (valor == "double"){
-      return 20;
+      return valor;
   }else if (valor == "string"){
-      return 21;
+      return valor;
   }else if (valor == "char"){
-      return 22;
+      return valor;
   }else if (valor == "static"){
-      return 23;
+      return valor;
   }else if (valor == "print"){
-      return 24;
+      return valor;
   }else{
-      return 53;
+      return "id";
   }
 }
 
@@ -80,7 +80,7 @@ function analizarLexico(contenido){
   var valor = "";
   var inicioValorColum = 0;
   var inicioValorFila = 0;
-  var tipovalor = 0;
+  var tipovalor = "";
   var x=0;
   let listaTokens = [];
   let listaErroresL = [];
@@ -91,7 +91,7 @@ function analizarLexico(contenido){
 
       if (estado == 0){
           valor = "";
-          tipovalor = 0;
+          tipovalor = "";
           inicioValorColum = columna;
           inicioValorFila = fila;
           if (contenido[x] == '/'){
@@ -112,42 +112,42 @@ function analizarLexico(contenido){
               valor = valor + contenido[x]   ;
           }else if (contenido[x] == '('){
               estado = -1;
-              tipovalor = 27;
+              tipovalor = "parentesis izquierdo";
               columna = columna + 1;
               valor = valor + contenido[x];
           }else if (contenido[x] == ')'){
               estado = -1;
-              tipovalor = 28;
+              tipovalor = "parentesis derecho";
               columna = columna + 1;
               valor = valor + contenido[x];
           }else if (contenido[x] == '{'){
               estado = -1;
-              tipovalor = 25;
+              tipovalor = "llave izquierda";
               columna = columna + 1;
               valor = valor + contenido[x];
           }else if (contenido[x] == '}'){
               estado = -1;
-              tipovalor = 26;
+              tipovalor = "llave derecha";
               columna = columna + 1;
               valor = valor + contenido[x];
           }else if (contenido[x] == ';'){
               estado = -1;
-              tipovalor = 31;
+              tipovalor = "punto y coma";
               columna = columna + 1;
               valor = valor + contenido[x];
           }else if (contenido[x] == '.'){
               estado = -1;
-              tipovalor = 30;
+              tipovalor = "punto";
               columna = columna + 1;
               valor = valor + contenido[x]; 
           }else if (contenido[x] == ','){
               estado = -1;
-              tipovalor = 29;
+              tipovalor = "coma";
               columna = columna + 1;
               valor = valor + contenido[x] ; 
           }else if (contenido[x] == '^'){
               estado = -1;
-              tipovalor = 35;
+              tipovalor = "XOR";
               columna = columna + 1;
               valor = valor + contenido[x] ;     
           }else if (contenido[x] == '+'){
@@ -160,7 +160,7 @@ function analizarLexico(contenido){
               valor = valor + contenido[x] ;  
           }else if (contenido[x] == '*'){
               estado = -1;
-              tipovalor = 45;
+              tipovalor = "signo *";
               columna = columna + 1;
               valor = valor + contenido[x];                  
           }else if (contenido[x] == '!'){
@@ -169,7 +169,6 @@ function analizarLexico(contenido){
               valor = valor + contenido[x] ; 
           }else if (contenido[x] == '>'){
               estado = 24;
-              tipovalor = 6;
               columna = columna + 1;
               valor = valor + contenido[x] ;
           }else if (contenido[x] == '<'){
@@ -186,12 +185,12 @@ function analizarLexico(contenido){
               valor = valor + contenido[x];
           }else if (contenido[x] == '['){
               estado = -1;
-              tipovalor = 49;
+              tipovalor = "corchete izquierdo";
               columna = columna + 1;
               valor = valor + contenido[x]; 
           }else if (contenido[x] == ']'){
               estado = -1;
-              tipovalor = 50;
+              tipovalor = "corchete derecho";
               columna = columna + 1;
               valor = valor + contenido[x];   
           }else if ((contenido[x] >= 'A' && contenido[x] <= 'Z') || (contenido[x] >= 'a' && contenido[x] <= 'z')){ // posible palabra o identificador
@@ -234,13 +233,13 @@ function analizarLexico(contenido){
               valor = valor + contenido[x];
           }else{
               estado = -1; // aceptacion para simbolo / que seria un operador
-              tipovalor = 46;
+              tipovalor = "signo /";
               x=x-1; // regresamos en 1 para volver a leer el simbolo 
           }               
       }else if (estado == 2){ // comentario de 1 linea
           if (contenido[x] == '\n'){  // comentario de 1 linea
               estado = -1;
-              tipovalor = 51;
+              tipovalor = "comentario 1 linea";
               x=x-1;                           
           }else{
               columna = columna + 1;
@@ -264,7 +263,7 @@ function analizarLexico(contenido){
           if (contenido[x] == '/'){  // salida
               estado = -1;  
               columna = columna + 1;
-              tipovalor = 52;
+              tipovalor = "comentario multilinea";
               valor = valor + contenido[x];
           }else if (contenido[x] == '*'){  // posible salida
               columna = columna + 1;
@@ -287,7 +286,7 @@ function analizarLexico(contenido){
           }else if (contenido[x] == '"'){ // fin y aceptacion de cadena
               estado = -1;
               columna = columna + 1;
-              tipovalor = 51;               
+              tipovalor = "cadena";               
               valor = valor + contenido[x];
           }else if (contenido[x] == '\n'){  //salto de linea es porque hay error
               estado = -2;
@@ -313,7 +312,7 @@ function analizarLexico(contenido){
           }else if (contenido[x] == '\''){// fin y aceptacion de cadena
               estado = -1;
               columna = columna + 1;
-              tipovalor = 52;              
+              tipovalor = "caracter";              
               valor = valor + contenido[x];
           }else if (contenido[x] == '\n'){ // salto de linea es porque hay error
               estado = -2;
@@ -336,7 +335,7 @@ function analizarLexico(contenido){
               estado = -1;
               columna = columna + 1;
               valor = valor + contenido[x];
-              tipovalor = 32;
+              tipovalor = "and";
           }else{  // error 
               estado = -2;
               x=x-1;
@@ -346,7 +345,7 @@ function analizarLexico(contenido){
               estado = -1;
               columna = columna + 1;
               valor = valor + contenido[x];
-              tipovalor = 33;
+              tipovalor = "or";
           }else{ // error 
               estado = -2;
               x=x-1;       
@@ -380,7 +379,7 @@ function analizarLexico(contenido){
               valor = valor + contenido[x];                 
           }else{  // acepta el identificador
               estado = -1;
-              tipovalor = 53;
+              tipovalor = "id";
               x=x-1;
           }  
       }else if (estado == 13){ // posible numero
@@ -393,7 +392,7 @@ function analizarLexico(contenido){
               valor = valor + contenido[x];
           }else{  // aceptamos numero
               estado = -1;
-              tipovalor = 54;
+              tipovalor = "entero";
               x=x-1;
           } 
       }else if (estado == 14){ // posible numero con decimales
@@ -403,7 +402,7 @@ function analizarLexico(contenido){
               valor = valor + contenido[x];            
           }else{}  // acepta el numero sin el .
               estado = -1
-              tipovalor = 54;
+              tipovalor = "entero";
               columna = columna - 1;
               x=x-2;
               valor.replace('.','');
@@ -413,7 +412,7 @@ function analizarLexico(contenido){
               valor = valor + contenido[x];               
           }else{  // acepta el numero con decimales
               estado = -1;
-              tipovalor = 55;
+              tipovalor = "decimal";
               x=x-1; 
           }      
       }else if (estado == 15){ // posible numero 0
@@ -427,7 +426,7 @@ function analizarLexico(contenido){
               valor = valor + contenido[x];       
           }else{  // acepta 0
               estado = -1;
-              tipovalor = 54;
+              tipovalor = "entero";
               x=x-1;
           }    
       }else if (estado == 16){ // posible numero
@@ -437,7 +436,7 @@ function analizarLexico(contenido){
               valor = valor + contenido[x] ;                 
           }else{  // acepta el 0 y el . por separado
               estado = -1;
-              tipovalor = 54;
+              tipovalor = "entero";
               columna = columna - 1;
               x=x-2;
               valor = "0";
@@ -448,7 +447,7 @@ function analizarLexico(contenido){
               valor = valor + contenido[x];
           }else{  // acepta el 0.6546
               estado = -1;
-              tipovalor = 55;
+              tipovalor = "decimal";
               x=x-1;
           }            
       }else if (estado == 18){
@@ -464,10 +463,10 @@ function analizarLexico(contenido){
               estado = -1;
               columna = columna + 1;
               valor = valor + contenido[x];
-              tipovalor = 41;
+              tipovalor = "igual doble";
           }else{  // aceptamos solo el = 
               estado = -1;
-              tipovalor = 38;
+              tipovalor = "igual";
               x=x-1;
           }      
       }else if (estado == 21){
@@ -475,10 +474,10 @@ function analizarLexico(contenido){
               estado = -1;
               columna = columna + 1;
               valor = valor + contenido[x];
-              tipovalor = 47;
-          }else{  // aceptamos solo el = 
+              tipovalor = "mas doble";
+          }else{  // aceptamos solo el + 
               estado = -1;
-              tipovalor = 43;
+              tipovalor = "signo +";
               x=x-1;
           } 
       }else if (estado == 22){
@@ -486,10 +485,10 @@ function analizarLexico(contenido){
               estado = -1;
               columna = columna + 1;
               valor = valor + contenido[x];
-              tipovalor = 48;
+              tipovalor = "menos doble";
           }else{  // aceptamos solo el = 
               estado = -1;
-              tipovalor = 44;
+              tipovalor = "signo -";
               x=x-1;
           } 
       }else if (estado == 23){
@@ -497,10 +496,10 @@ function analizarLexico(contenido){
               estado = -1;
               columna = columna + 1;
               valor = valor + contenido[x];
-              tipovalor = 42;
+              tipovalor = "diferente";
           }else{  // aceptamos solo el ! 
               estado = -1;
-              tipovalor = 34;
+              tipovalor = "not";
               x=x-1;
           } 
       }else if (estado == 24){
@@ -508,10 +507,10 @@ function analizarLexico(contenido){
               estado = -1;
               columna = columna + 1;
               valor = valor + contenido[x];
-              tipovalor = 39;
+              tipovalor = "mayor igual";
           }else{  // aceptamos solo el > 
               estado = -1;
-              tipovalor = 36;
+              tipovalor = "mayor";
               x=x-1;
           }    
       }else if (estado == 25){
@@ -519,10 +518,10 @@ function analizarLexico(contenido){
               estado = -1;
               columna = columna + 1;
               valor = valor + contenido[x];
-              tipovalor = 40;
+              tipovalor = "menor igual";
           }else{  // aceptamos solo el < 
               estado = -1;
-              tipovalor = 37;
+              tipovalor = "menor";
               x=x-1;
           }    
       }else if (estado == -1){   //estado de aceptacion para todos
@@ -530,7 +529,7 @@ function analizarLexico(contenido){
           listaTokens.push(nuevoToken);
           texto = texto + valor;
           valor = ""  
-          tipovalor = 0
+          tipovalor = ""
           estado = 0
           x=x-1
       }else if (estado == -2){      // estado de errores

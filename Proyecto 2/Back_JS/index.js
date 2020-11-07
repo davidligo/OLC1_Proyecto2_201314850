@@ -16,17 +16,14 @@ app.get('/',(req, res) => {
 var parser = require('./gramatica');
 
 
-fs.readFile('./archivo.txt', (err, data) => {
-    if (err) throw err;
-    
-});
-
 app.post('/cargarArchivo',(req, res) => {
     console.log("Entro una peticion REST");
   var user_name=req.body.texto;
-  parser.parse(data.toString());
-  console.log("User name = "+respuesta.texto);
-  res.end(JSON.stringify(respuesta));
+  var hola = parser.parse(user_name.toString());
+  //console.log("Resultado del analisis");
+  //console.log(JSON.stringify(hola));
+  //console.log("User name = "+hola);
+  res.end(JSON.stringify(hola));
 });
 
 app.listen(4000,() => {

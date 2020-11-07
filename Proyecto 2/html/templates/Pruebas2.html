@@ -11,12 +11,17 @@
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">  </script>
 <style>
-div.editor {
-  max-width:500px;
-  max-height: 500px;
-  margin: auto;
-  position: relative;
-  left: 30px;
+
+table {
+   width: 100%;
+   border: 1px solid rgb(16, 30, 112);
+}
+th, td {
+   width: 25%;
+   text-align: left;
+   vertical-align: top;
+   border: 1px solid rgb(16, 30, 112);
+   border-spacing: 0;
 }
 
 </style>
@@ -35,6 +40,8 @@ div.editor {
 
     <table>
       <thead>
+        <tr>Tabla de Errores 1 (Python)</tr>
+
         <tr>
           <th>No.</th>
           <th>Tipo Error</th>
@@ -43,13 +50,69 @@ div.editor {
           <th>Descripción</th>
         </tr>
       </thead>
-      <tbody id="tablaErrores">
+      <tbody id="tablaErrores1">
+
+      </tbody>
+
+
+    </table>
+    <table>
+      <thead>
+        <tr>Tabla de Tokens 1 (Python)</tr>
+        <tr>
+          <th>No.</th>
+          <th>Fila</th>
+          <th>Columna</th>
+          <th>Tipo</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody id="tablaTokens1">
 
       </tbody>
 
 
     </table>
 
+    <table>
+      <thead>
+        <tr>Tabla de Errores 2 (JS)</tr>
+
+        <tr>
+          <th>No.</th>
+          <th>Tipo Error</th>
+          <th>Fila</th>
+          <th>Columna</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody id="tablaErrores2">
+
+      </tbody>
+
+
+    </table>
+    <table>
+      <thead>
+        <tr>Tabla de Tokens 2 (JS)</tr>
+        <tr>
+          <th>No.</th>
+          <th>Fila</th>
+          <th>Columna</th>
+          <th>Tipo</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody id="tablaTokens2">
+
+      </tbody>
+
+
+    </table>
+    <script src="//d3js.org/d3.v5.min.js"></script>
+    <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
+    <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
+    <div id="graph" style="text-align: center;"></div>
     
 </body>
 <script>
@@ -97,27 +160,102 @@ var editor2 = new Quill('#editor', {
       console.log(texto);
       $.post("http://localhost:3000/cargarArchivo",{texto: texto}, function(data){
         let respuesta = JSON.parse(data);
-        
+        /*
         editor2.deleteText(0, tam);
         editor2.insertText(0, respuesta.texto, {
             'color': '#000000'
-        });
-        let tablaErrores = document.querySelector('#tablaErrores');
-        tablaErrores.innerHTML = '';
+        });*/
+        let tablaErrores1 = document.querySelector('#tablaErrores1');
+        tablaErrores1.innerHTML = '';
         let x = 1;
-        for(let item of respuesta.listaErroresL){
-          tablaErrores.innerHTML += `
+        for(let item1 of respuesta.listaErroresL){
+          tablaErrores1.innerHTML += `
           <th>${x}</th>
           <th>Lexico</th>
-          <th>${item.fila }</th>
-          <th>${item.columna}</th>
-          <th>${item.descripcion}</th>
+          <th>${item1.fila }</th>
+          <th>${item1.columna}</th>
+          <th>${item1.descripcion}</th>
           `;
-          console.log(x);
           x++;
         }
-            alert(data);
+        let tablaTokens1 = document.querySelector('#tablaTokens1');
+        tablaTokens1.innerHTML = '';
+        x = 1;
+        for(let item2 of respuesta.listaTokens){
+          tablaTokens1.innerHTML += `
+          <th>${x}</th>
+          <th>${item2.fila }</th>
+          <th>${item2.columna}</th>
+          <th>${item2.tipo}</th>          
+          <th>${item2.valor}</th>
+          `;
+          x++;
+        }
+
           
+      });
+      var numero = 1;
+      var textoGrafica = "";
+      function paraAST(nodo){
+        console.log(nodo);
+        
+        var x = "n" + numero;
+        var y = "";
+        console.log("voy por " + x + ": antes de algun cambio a texto -> "+textoGrafica);
+        textoGrafica = textoGrafica + x + ` [label="${nodo.padre}"] ;\n`;
+        for(let item of nodo.hijos ){
+          numero++;
+          y = "n"+numero;
+          textoGrafica = textoGrafica + x + " -> " + y +"; \n";
+          if(item.padre!=undefined){
+            paraAST(item)
+          }else{
+            textoGrafica = textoGrafica + y + ` [label="${item}"] ;\n`;
+          }
+          
+        }
+        console.log("voy por " + x + ":despues de algun cambio a texto -> "+textoGrafica);
+      }
+
+      $.post("http://localhost:4000/cargarArchivo",{texto: texto}, function(data){
+        let respuesta = JSON.parse(data);
+        //console.log(respuesta);
+
+        let tablaErrores1 = document.querySelector('#tablaErrores2');
+        tablaErrores1.innerHTML = '';
+        let x = 1;
+        for(let item1 of respuesta.lista_lexicos){
+          tablaErrores1.innerHTML += `
+          <th>${x}</th>
+          <th>Lexico</th>
+          <th>${item1.fila }</th>
+          <th>${item1.columna}</th>
+          <th>${item1.descripcion}</th>
+          `;
+          x++;
+        }
+        let tablaTokens1 = document.querySelector('#tablaTokens2');
+        tablaTokens1.innerHTML = '';
+        x = 1;
+
+        //crearRespuesta(listaTokens, lista_lexicos, lista_sintacticos, ast)
+        for(let item2 of respuesta.listaTokens){
+          tablaTokens1.innerHTML += `
+          <th>${x}</th>
+          <th>${item2.fila }</th>
+          <th>${item2.columna}</th>
+          <th>${item2.tipo}</th>          
+          <th>${item2.valor}</th>
+          `;
+          x++;
+        }
+        x = 1;
+        numero = 1;
+        textoGrafica = "digraph  {";
+        paraAST(respuesta.ast);
+        textoGrafica = textoGrafica + "}";
+        d3.select("#graph").graphviz()
+          .renderDot(textoGrafica);
       });
     });
   });
