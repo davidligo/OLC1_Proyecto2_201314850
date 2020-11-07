@@ -15,17 +15,7 @@ type curso struct {
 
 func getInfo(w http.ResponseWriter, r *http.Request) {
 
-	/*nodeip, defip := os.LookupEnv("NODEIP")
-	nodeport, defport := os.LookupEnv("NODEPORT")
 
-	if !defip {
-		nodeip = "182.18.7.7"
-	}
-
-	if !defport {
-		nodeport = "3000"
-	}
-*/
 	url := "http://localhost:3000/getCurso/"
 
 	log.Printf(url)

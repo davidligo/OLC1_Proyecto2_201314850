@@ -551,8 +551,11 @@ function analizarLexico(contenido){
   listaErroresL.forEach(element => {
     console.log(element.descripcion);
   }); 
+
   var respuesta = new respuestaAL(listaTokens,listaErroresL,texto);
   return respuesta;
+
+ 
   
 }
 
@@ -597,7 +600,7 @@ app.post('/cargarArchivo',(req, res) => {
     console.log("Entro una peticion REST");
   var user_name=req.body.texto;
   var respuesta = analizarLexico(user_name);
-  console.log("User name = "+respuesta.texto);
+  /*console.log("User name = "+respuesta.texto);*/
   res.end(JSON.stringify(respuesta));
 });
 

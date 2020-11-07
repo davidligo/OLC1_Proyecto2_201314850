@@ -13,6 +13,7 @@
 <style>
 
 table {
+  position: relative;
    width: 100%;
    border: 1px solid rgb(16, 30, 112);
 }
@@ -23,17 +24,59 @@ th, td {
    border: 1px solid rgb(16, 30, 112);
    border-spacing: 0;
 }
+div.editor {
+  position: relative;
+  top: 0px;
+  left: 20px;
+  background-color: white;
+  width: 500px;
+}
+
+div.editor2 {
+  position: relative;
+  float: right;
+  top: 0px;
+  right: 20px;
+  background-color: black;
+  color: white;
+  width: 500px;
+}
+
+div.editor3 {
+  position: relative;
+  float: right;
+  top: 0px;
+  right: 20px;
+  color: white;
+  background-color: black;
+  width: 500px;
+}
+input.ladeInput {
+  position: relative;
+  top: 0px;
+  left: 20px;
+  background-color: white;
+  width: 500px;
+}
 
 </style>
 <script>
   
 </script>
 <body>
-    <input type="file" id="file"/>
+    <input type="file" id="file" class="ladeInput"/>
     <!--<textarea id="contenido" rows="4" cols="30" style="width:500px;height:300px"></textarea> -->
 
     <div type="text" id="editor" class="editor">
     
+    
+    </div>
+    <div type="text" id="editor2" class="editor2">
+    Consola Python:
+    
+    </div>
+    <div type="text" id="editor3" class="editor3">
+      Consola JS:
     
     </div>
     <input type="button" id="submit" value="Analizar">
@@ -123,6 +166,20 @@ var editor2 = new Quill('#editor', {
   },
   theme: 'snow'  // or 'bubble'
 });
+var editor3 = new Quill('#editor2', {
+  modules: {
+    toolbar: false
+  },
+  theme: 'snow'  // or 'bubble'
+});
+var editor4 = new Quill('#editor3', {
+  modules: {
+    toolbar: false
+  },
+  theme: 'snow'  // or 'bubble'
+});
+editor3.enable(false);
+editor4.enable(false);
     const input = document.getElementById('file');
     //const editor = document.getElementById('contenido');
     input.addEventListener('change', function () {
@@ -168,6 +225,7 @@ var editor2 = new Quill('#editor', {
         let tablaErrores1 = document.querySelector('#tablaErrores1');
         tablaErrores1.innerHTML = '';
         let x = 1;
+        var paraConsola = "";
         for(let item1 of respuesta.listaErroresL){
           tablaErrores1.innerHTML += `
           <th>${x}</th>
@@ -176,6 +234,11 @@ var editor2 = new Quill('#editor', {
           <th>${item1.columna}</th>
           <th>${item1.descripcion}</th>
           `;
+          tam = editor3.getLength();
+          paraConsola = `Error Lexico: ${item1.descripcion} en la fila ${item1.fila} y columna ${item1.columna}.`;
+          editor3.insertText(tam, paraConsola, {
+            'color': '#ffffff'
+          });
           x++;
         }
         let tablaTokens1 = document.querySelector('#tablaTokens1');
@@ -196,12 +259,9 @@ var editor2 = new Quill('#editor', {
       });
       var numero = 1;
       var textoGrafica = "";
-      function paraAST(nodo){
-        console.log(nodo);
-        
+      function paraAST(nodo){        
         var x = "n" + numero;
         var y = "";
-        console.log("voy por " + x + ": antes de algun cambio a texto -> "+textoGrafica);
         textoGrafica = textoGrafica + x + ` [label="${nodo.padre}"] ;\n`;
         for(let item of nodo.hijos ){
           numero++;
@@ -214,16 +274,16 @@ var editor2 = new Quill('#editor', {
           }
           
         }
-        console.log("voy por " + x + ":despues de algun cambio a texto -> "+textoGrafica);
       }
 
       $.post("http://localhost:4000/cargarArchivo",{texto: texto}, function(data){
         let respuesta = JSON.parse(data);
-        //console.log(respuesta);
+        console.log(respuesta);
 
         let tablaErrores1 = document.querySelector('#tablaErrores2');
         tablaErrores1.innerHTML = '';
         let x = 1;
+        var paraConsola = "";
         for(let item1 of respuesta.lista_lexicos){
           tablaErrores1.innerHTML += `
           <th>${x}</th>
@@ -232,8 +292,30 @@ var editor2 = new Quill('#editor', {
           <th>${item1.columna}</th>
           <th>${item1.descripcion}</th>
           `;
+          tam = editor4.getLength();
+          paraConsola = `Error Lexico: ${item1.descripcion} en la fila ${item1.fila} y columna ${item1.columna}.`;
+          editor4.insertText(tam, paraConsola, {
+            'color': '#ffffff'
+          });
           x++;
         }
+        x = 1;
+        for(let item1 of respuesta.lista_sintacticos){
+          tablaErrores1.innerHTML += `
+          <th>${x}</th>
+          <th>Sintactico</th>
+          <th>${item1.fila }</th>
+          <th>${item1.columna}</th>
+          <th>${item1.descripcion}</th>
+          `;
+          tam = editor4.getLength();
+          paraConsola = `Error Sintactico: ${item1.descripcion} en la fila ${item1.fila} y columna ${item1.columna}.`;
+          editor4.insertText(tam, paraConsola, {
+            'color': '#ffffff'
+          });
+          x++;
+        }
+
         let tablaTokens1 = document.querySelector('#tablaTokens2');
         tablaTokens1.innerHTML = '';
         x = 1;

@@ -3,14 +3,20 @@
  */
 
  %{
-	const errores_lexicos		= [];
-	const errores_sintacticos 	= [];
-    const listaTokens           = [];
+	var errores_lexicos		= [];
+	var errores_sintacticos 	= [];
+    var listaTokens           = [];
+    var textoNuevo = "";
 	function ast(padre, hijos){
          this.padre = padre;
          this.hijos = hijos;
     }
 	function crearErrorL(descripcion, fila, columna){
+  		this.descripcion = descripcion;
+  		this.fila = fila;
+  		this.columna = columna;
+	}
+    function crearErrorS(descripcion, fila, columna){
   		this.descripcion = descripcion;
   		this.fila = fila;
   		this.columna = columna;
@@ -36,9 +42,9 @@
 
 %%
 
-\s+											// se ignoran espacios en blanco
-"//".*										// comentario simple línea
-[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]			// comentario multiple líneas
+\s+											{textoNuevo = textoNuevo + yytext;}// se ignoran espacios en blanco
+"//".*										{textoNuevo = textoNuevo + yytext;}// comentario simple línea
+[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]			{textoNuevo = textoNuevo + yytext;}// comentario multiple líneas
 
 "public"			{ listaTokens.push(new crearToken(yytext, "palabra reservada public", yylloc.first_line, yylloc.first_column)); return 'RPUBLIC';}
 "class"				{ listaTokens.push(new crearToken(yytext, "palabra reservada class", yylloc.first_line, yylloc.first_column)); return 'RCLASS';}
@@ -64,7 +70,7 @@
 "char"				{ listaTokens.push(new crearToken(yytext, "palabra reservada char", yylloc.first_line, yylloc.first_column)); return 'RCHAR';}
 "static"			{ listaTokens.push(new crearToken(yytext, "palabra reservada static", yylloc.first_line, yylloc.first_column)); return 'RSTATIC';}
 "print"				{ listaTokens.push(new crearToken(yytext, "palabra reservada print", yylloc.first_line, yylloc.first_column)); return 'RPRINT';}
-
+"main"				{ listaTokens.push(new crearToken(yytext, "palabra reservada main", yylloc.first_line, yylloc.first_column)); return 'RMAIN';}
 
 ","					{ listaTokens.push(new crearToken(yytext, "coma", yylloc.first_line, yylloc.first_column)); return 'COMA';}
 "."					{ listaTokens.push(new crearToken(yytext, "punto", yylloc.first_line, yylloc.first_column)); return 'PUNTO';}
@@ -110,7 +116,7 @@
 
 <<EOF>>				return 'EOF';
 .					{ console.error('Este es un error léxico: ' + yytext + ', en la linea: ' + yylloc.first_line + ', en la columna: ' + yylloc.first_column);
-						errores_lexicos.push(new crearErrorL("La cadena "+ yytext + " no pertenece al lenguaje.", yylloc.first_line, yylloc.first_column));
+						errores_lexicos.push(new crearErrorL("El caracter "+ yytext + " no pertenece al lenguaje.", yylloc.first_line, yylloc.first_column));
 					}
 
 /lex
@@ -135,7 +141,13 @@ ini
     { 
         var raiz = new ast("ini",new Array($1)); 
         //console.log(JSON.stringify(raiz));
-        return new crearRespuesta(listaTokens, errores_lexicos, errores_sintacticos, raiz);
+        var nuevaListaTokens = listaTokens;
+        var nuevaListaErroresL = errores_lexicos;
+        var nuevaListaErroresS = errores_sintacticos;
+        listaTokens = [];
+        errores_lexicos = [];
+        errores_sintacticos = [];
+        return new crearRespuesta(nuevaListaTokens, nuevaListaErroresL, nuevaListaErroresS, raiz);
     }
 ;
 
@@ -147,7 +159,9 @@ lista_clases
 
 clase_interfaz
     : RPUBLIC tipo_clase IDENTIFICADOR bloqueclase_interfaz  { let arreglo4 = []; arreglo4.push($1); arreglo4.push($2); arreglo4.push($3); arreglo4.push($4); $$ = new ast("clase",arreglo4);  }
-    | error PTCOMA { console.error('Este es un error clase_interfaz sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); }
+    | error PTCOMA { console.error('Este es un error clase_interfaz sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); 
+                        errores_sintacticos.push(new crearErrorS("Error sintactico "+ yytext + " en clase_interfaz ", this._$.first_line, this._$.first_column));
+                    }
 ;
 
 bloqueclase_interfaz
@@ -169,12 +183,14 @@ lista_instrucciones_clase
 instrucciones_clase
     : declaracion PTCOMA { let arregloinstrucciones_clase = []; arregloinstrucciones_clase.push($1); arregloinstrucciones_clase.push($2); $$ = new ast("instrucciones_clase", arregloinstrucciones_clase); }
     | metodo_funcion { $$ = new ast("instrucciones_clase",new Array($1));  }
-    | error PTCOMA { console.error('Este es un error instrucciones_clase sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); }
+    | error PTCOMA { console.error('Este es un error instrucciones_clase sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); 
+                        errores_sintacticos.push(new crearErrorS("Error sintactico "+ yytext + " en instrucciones_clase ", this._$.first_line, this._$.first_column));
+                    }
 ;
 
 metodo_funcion
     : RPUBLIC tipo_funcion IDENTIFICADOR bloqueparametros  bloquemetodo_funcion { let arreglometodo_funcion= []; arreglometodo_funcion.push($1); arreglometodo_funcion.push($2); arreglometodo_funcion.push($3); arreglometodo_funcion.push($4); arreglometodo_funcion.push($5); $$ = new ast("metodo_funcion", arreglometodo_funcion); }
-    
+    | RPUBLIC RSTATIC RVOID RMAIN PARIZQ RSTRING CORIZQ  CORDER IDENTIFICADOR PARDER bloquemetodo_funcion { let arreglometodo_funcion2= []; arreglometodo_funcion2.push($1); arreglometodo_funcion2.push($2); arreglometodo_funcion2.push($3); arreglometodo_funcion2.push($4); arreglometodo_funcion2.push($5); arreglometodo_funcion2.push($6); arreglometodo_funcion2.push($7); arreglometodo_funcion2.push($8); arreglometodo_funcion2.push($9); arreglometodo_funcion2.push($10); arreglometodo_funcion2.push($11); $$ = new ast("metodo_funcion", arreglometodo_funcion2); }
 ; 
 
 bloqueparametros
@@ -201,6 +217,12 @@ instrucciones
     | sentencia_while { $$ = new ast("instrucciones",new Array($1)); }
     | sentencia_do { $$ = new ast("instrucciones",new Array($1)); }
     | sentencia_return { $$ = new ast("instrucciones",new Array($1)); }
+    | sentencia_continuebreak PTCOMA { let arregloinstrucciones3 = []; arregloinstrucciones3.push($1); arregloinstrucciones3.push($2); $$ = new ast("instrucciones", arregloinstrucciones3); }
+;
+
+sentencia_continuebreak
+    : RCONTINUE { $$ = new ast("sentencia_continuebreak",new Array($1)); }
+    | RBREAK    { $$ = new ast("sentencia_continuebreak",new Array($1)); }
 ;
 
 sentencia_return
@@ -290,14 +312,18 @@ lista_declaraciones
 declaraciones
     : IDENTIFICADOR IGUAL expresion    { let arreglodeclaraciones = []; arreglodeclaraciones.push($1); arreglodeclaraciones.push($2); arreglodeclaraciones.push($3); $$ = new ast("declaraciones", arreglodeclaraciones); }
     | IDENTIFICADOR                    { $$ = new ast("declaraciones",new Array($1)); }
-    | error PTCOMA { console.error('Este es un error declaraciones sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); }
+    | error PTCOMA { console.error('Este es un error declaraciones sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); 
+                    errores_sintacticos.push(new crearErrorS("Error sintactico "+ yytext + " en declaraciones ", this._$.first_line, this._$.first_column));
+    }
 
 ;
 
 expresion
     : expresion_numerica    { $$ = new ast("expresion",new Array($1)); }
     | expresion_logica      { $$ = new ast("expresion",new Array($1)); }
-    | error PTCOMA { console.error('Este es un error expresion sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); }
+    | error PTCOMA { console.error('Este es un error expresion sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); 
+                        errores_sintacticos.push(new crearErrorS("Error sintactico "+ yytext + " en expresion ", this._$.first_line, this._$.first_column));
+    }
 ;
 
 expresion_numerica

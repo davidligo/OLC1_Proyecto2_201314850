@@ -1,4 +1,4 @@
-package main
+/*package main
  
 import (
 	"fmt"// Imprimir en consola
@@ -16,7 +16,7 @@ func prueba(w http.ResponseWriter, r *http.Request){
 		template.Execute(w,nil)
 	}
 }
- 
+ /*
 func main() {
  
 	http.HandleFunc("/", prueba)
@@ -24,3 +24,4 @@ func main() {
 	fmt.Println("Servidor listo escuchando en " + direccion)
 	log.Fatal(http.ListenAndServe(direccion, nil))
 }
+*/
